@@ -1,0 +1,37 @@
+plugins {
+    id 'idea'
+    id 'org.jetbrains.intellij' version '0.4.20'
+}
+
+group 'com.wxibm333'
+version '1.0'
+
+repositories {
+    mavenLocal()
+    maven {
+        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+        allowInsecureProtocol true
+    }
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    pluginName 'ConvertToJsonParam'
+    version '2020.1'
+    plugins = ['java']
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+patchPluginXml {
+    changeNotes """
+         <li>1.0 - ConvertToJsonParam plugin init.</li>
+         <li>1.0.1 - update plugin info1.</li>"""
+}
