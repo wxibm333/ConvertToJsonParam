@@ -45,7 +45,7 @@ public class ConvertToJsonParamUtil {
   private final static NotificationGroup NOTIFICATION_GROUP;
   private final static String PATTERN = "yyyy-MM-dd HH:mm:ss";
   private final static DateFormat DATE_FORMAT = new SimpleDateFormat(PATTERN);
-  private final static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private final static Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
   @NonNls
   private static final Map<String, Object> NORMAL_TYPES = new HashMap<>();
@@ -86,7 +86,7 @@ public class ConvertToJsonParamUtil {
     try {
       PsiClass psiClass = Objects.requireNonNull(selectedClass);
       JsonObject jsonObject = convertJsonObject(selectedClass, isShowComment, ignore);
-      String json = gson.toJson(jsonObject);
+      String json = GSON.toJson(jsonObject);
       StringSelection selection = new StringSelection(json);
       Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
       clipboard.setContents(selection, selection);
@@ -112,12 +112,8 @@ public class ConvertToJsonParamUtil {
         String name = field.getName();
 
         // doc comment
-        if (field.getDocComment() != null && field.getDocComment().getText() != null) {
-          // 获取描述注解信息，包括换行符，空格等空白字符等
-          PsiElement[] descriptionElements = field.getDocComment()
-              .getDescriptionElements();
-          commentJsonObject.addProperty(name, field.getDocComment().getText());
-        }
+        JsonObject generateDocComment = JavadocForJsonUtil.generateDocComment(field);
+        commentJsonObject.add(name, generateDocComment);
       }
     }
     return commentJsonObject;
