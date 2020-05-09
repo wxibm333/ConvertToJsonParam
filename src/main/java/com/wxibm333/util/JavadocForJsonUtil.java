@@ -84,7 +84,7 @@ public class JavadocForJsonUtil {
 
   /**
    * 如果字段是枚举类型，则提取枚举字段信息
-   * @param type
+   * @param type 字段类型对象
    * @return com.google.gson.JsonArray
    * @author wangXin
    * @date 2020-05-09 14:39
