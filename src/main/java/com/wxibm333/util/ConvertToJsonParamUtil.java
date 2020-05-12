@@ -21,16 +21,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,32 +34,11 @@ import org.jetbrains.annotations.NotNull;
 public class ConvertToJsonParamUtil {
 
   private final static NotificationGroup NOTIFICATION_GROUP;
-  private final static String PATTERN = "yyyy-MM-dd HH:mm:ss";
-  private final static DateFormat DATE_FORMAT = new SimpleDateFormat(PATTERN);
   private final static Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-
-  @NonNls
-  private static final Map<String, Object> NORMAL_TYPES = new HashMap<>();
 
   static {
     NOTIFICATION_GROUP = new NotificationGroup("JavaBean2JsonParam.NotificationGroup",
         NotificationDisplayType.BALLOON, true);
-
-    NORMAL_TYPES.put("Boolean", false);
-    NORMAL_TYPES.put("Byte", 0);
-    NORMAL_TYPES.put("Short", (short) 0);
-    NORMAL_TYPES.put("Integer", 0);
-    NORMAL_TYPES.put("Long", 0L);
-    NORMAL_TYPES.put("Float", 0.0F);
-    NORMAL_TYPES.put("Double", 0.0D);
-    NORMAL_TYPES.put("String", "demoData");
-    NORMAL_TYPES.put("BigDecimal", 0.0);
-    NORMAL_TYPES.put("Date", DATE_FORMAT.format(new Date()));
-    NORMAL_TYPES.put("Timestamp", System.currentTimeMillis());
-    NORMAL_TYPES.put("LocalDate", LocalDate.now().toString());
-    NORMAL_TYPES.put("LocalTime", LocalTime.now().toString());
-    NORMAL_TYPES.put("LocalDateTime", LocalDateTime.now().toString());
-
   }
 
   // private static boolean isNormalType(String typeName) {
