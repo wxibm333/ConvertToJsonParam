@@ -1,26 +1,16 @@
 package com.wxibm333.util;
 
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.util.PsiUtil;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -186,30 +176,45 @@ public class JavadocForJsonUtil {
     String descriptionComment = JavadocForJsonUtil.extractDescriptionComment(docComment);
     // 获取字段类型
     PsiType type = field.getType();
-    String fieldTypeName = type.getPresentableText();
     JsonArray validComment = JavadocForJsonUtil.extractValidComment(field);
     // 判断字段类型是否是原始数据类型以及封装类型
-    boolean isPrimitiveType = ToolsUtil.isPrimitiveOrNormalType(type);
+    boolean isPrimitiveOrNormalType = ToolsUtil.isPrimitiveOrNormalType(type);
     commentJsonObject.addProperty("comment", descriptionComment);
-    if (isPrimitiveType) {
+    if (isPrimitiveOrNormalType) {
       // 基础数据类型，加上验证注释信息
       commentJsonObject.add("valid", validComment);
     } else {
-      PsiClass psiClass = ToolsUtil.resolveClassByType(type);
-      boolean isEnum = psiClass != null && psiClass.isEnum();
-      commentJsonObject.addProperty("type", isEnum ? "enum" : fieldTypeName);
-      if (isEnum) {
-        //枚举类处理
-        JsonObject jsonObject = JavadocForJsonUtil.extractEnumComment(psiClass);
-        JavadocForJsonUtil
-            .appendToJsonObject(jsonObject != null, "optionalValue", jsonObject, commentJsonObject);
-      } else {
-        // psiClass可能是集合或数组中嵌套的基础数据类型,如为原始类型的封装类型无需处理
-        boolean normalType = psiClass != null && ToolsUtil.isNormalType(psiClass.getName());
-        if(psiClass != null && !normalType){
-          JsonObject collectionDocComment = JavadocForJsonUtil.generateReferenceComment(psiClass);
+      PsiClass resolveClass = PsiUtil.resolveClassInType(type);
+      if (resolveClass != null) {
+        if (resolveClass.isEnum()) {
+          // 枚举处理,就算是数组枚举类型，也在该处处理
+          JsonObject jsonObject = JavadocForJsonUtil.extractEnumComment(resolveClass);
           JavadocForJsonUtil
-              .appendToJsonObject(collectionDocComment != null, psiClass.getName(),
+              .appendToJsonObject(jsonObject != null, "optionalValue", jsonObject,
+                  commentJsonObject);
+        } else if (ToolsUtil.isCollectionType(resolveClass)) {
+          // 集合类型处理，提取集合类泛型类型,泛型类型有可能是泛型
+          PsiType psiType = PsiUtil.extractIterableTypeParameter(type, false);
+          PsiClass collectionClass = PsiUtil.resolveClassInType(psiType);
+          if(collectionClass != null){
+            if(collectionClass.isEnum()){
+              JsonObject jsonObject = JavadocForJsonUtil.extractEnumComment(resolveClass);
+              JavadocForJsonUtil
+                  .appendToJsonObject(jsonObject != null, "optionalValue", jsonObject,
+                      commentJsonObject);
+            }else if(!ToolsUtil.isNormalType(collectionClass)){
+              JsonObject collectionDocComment = JavadocForJsonUtil.generateReferenceComment(resolveClass);
+              JavadocForJsonUtil
+                  .appendToJsonObject(collectionDocComment != null, resolveClass.getName(),
+                      collectionDocComment,
+                      commentJsonObject);
+            }
+          }
+        } else if(!ToolsUtil.isNormalType(resolveClass)){
+          // 普通实体类,有可能是基础数据类型的数组，需要排除
+          JsonObject collectionDocComment = JavadocForJsonUtil.generateReferenceComment(resolveClass);
+          JavadocForJsonUtil
+              .appendToJsonObject(collectionDocComment != null, resolveClass.getName(),
                   collectionDocComment,
                   commentJsonObject);
         }

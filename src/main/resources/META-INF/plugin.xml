@@ -1,7 +1,7 @@
 <idea-plugin>
-  <id>com.wxibm333</id>
-  <name>Java Bean to Json</name>
-  <version>1.0</version>
+  <id>com.wxibm333.ConvertToJsonParam</id>
+  <name>ConvertToJsonParam</name>
+  <version>1.0.1</version>
   <vendor email="929592332@qq.com" url="https://github.com/wxibm333">wxibm333</vendor>
 
   <description><![CDATA[
@@ -11,7 +11,7 @@
 
   <change-notes><![CDATA[
          <li>1.0 - ConvertToJsonParam plugin init.</li>
-         <li>1.0.1 - update plugin info.</li>
+         <li>1.0.1 - Add java Bean convert to json parameter Features.</li>
     ]]>
   </change-notes>
 
@@ -28,10 +28,22 @@
   </extensions>
 
   <actions>
-    <action id="com.wxibm333.ConvertToJsonParamCarryDocCommentAction" class="com.wxibm333.ConvertToJsonParamCarryDocCommentAction" text="ConvertToJsonParamCDC"
-      description="Java bean convert to json param">
+    <group id="ConvertToJsonParam" text="ConvertToJsonParam" popup="true">
       <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-    </action>
+      <action id="com.wxibm333.ConvertToJsonParamAction"
+        class="com.wxibm333.ConvertToJsonParamAction"
+        text="ConvertToJsonParam"
+        description="Java bean convert to json param">
+<!--        [first,before,after,last] -->
+<!--        <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
+        <keyboard-shortcut keymap="$default" first-keystroke="alt C"/>
+      </action>
+      <action id="com.wxibm333.ConvertToJsonParamCarryDocCommentAction"
+        class="com.wxibm333.ConvertToJsonParamCarryDocCommentAction" text="ConvertToJsonParamCDC"
+        description="Java bean convert to json param carry doc comment">
+<!--        <add-to-group group-id="EditorPopupMenu"/>-->
+      </action>
+    </group>
   </actions>
 
 </idea-plugin>
